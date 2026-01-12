@@ -25,3 +25,20 @@ If you have a question about using Jekyll, start a discussion on the [Jekyll For
 - [Ruby 101](https://jekyllrb.com/docs/ruby-101/)
 - [Setting up a Jekyll site with GitHub Pages](https://jekyllrb.com/docs/github-pages/)
 - [Configuring GitHub Metadata](https://github.com/jekyll/github-metadata/blob/master/docs/configuration.md#configuration) to work properly when developing locally and avoid `No GitHub API authentication could be found. Some fields may be missing or have incorrect data.` warnings.
+
+## Local run
+### Clean up (optional)
+```
+rm -f Gemfile.lock
+rm -rf .bundle vendor/bundle
+```
+
+### Install packages
+```
+bundle install
+```
+
+### Run
+```
+bundle exec jekyll serve --livereload
+```
