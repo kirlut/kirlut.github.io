@@ -13,12 +13,15 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
+url: "https://www.lutkir.dev/"
+baseurl: ""
 title: Kirill Lutcenko
-email:
+email: lutkir@pm.me
 description: >- # this means to ignore newlines until "baseurl:"
   Personal technical blog at the intersection of AI and backend engineering 
 minimal_mistakes_skin: default
 search: true
+og_image: /assets/images/bio-photo.jpeg
 
 # Build settings
 markdown: kramdown

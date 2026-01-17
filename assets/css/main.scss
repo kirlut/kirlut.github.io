@@ -1,0 +1,9 @@
+---
+# Only the triple-dash front matter is needed for Jekyll to process SCSS
+---
+
+@import "minimal-mistakes";
+
+.page__content {
+  font-size: 18px;
+}
