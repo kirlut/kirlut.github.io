@@ -1,6 +1,8 @@
 ---
 # Only the triple-dash front matter is needed for Jekyll to process SCSS
 ---
+$max-width: 1500px;              // try 1400–1800
+$right-sidebar-width: 260px;
 
 @import "minimal-mistakes";
 
