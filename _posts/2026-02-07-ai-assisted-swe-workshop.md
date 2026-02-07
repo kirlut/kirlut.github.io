@@ -16,10 +16,6 @@ So, you are a professional mid- to senior-level developer (if not, this post may
 
 You get a Cursor / Claude Code subscription from your employer and decide to try it out yourself. You ask the agent to implement your task by typing something like: `Implement interface of repository X for working with database Y`. The agent immediately starts working, and as a result you get a bunch of code that not only doesn’t work as needed, but that you can’t even remotely understand.
 
-You ask the agent to fix it a few times and end up with even less understandable code that you can't trust. You look at this garbage, realize that you’ve spent the entire day on it, delete all the generated code, close Cursor, open your regular IDE, and continue working on the task from scratch the way you always do.
-
-The aftertaste is frustration and FOMO, because the success stories of others are still there.
-
 This was exactly my case: I made two attempts to start creating software with the help of AI, but both times I ended up with the disaster described above. As it turned out, I was simply using this new tool the wrong way. Very wrong.
 
 The goal of this article is to help you overcome this frustration and actually start developing software with the help of AI coding agents by showing how to do it the right way. We’ll first discuss the mindset developers should have toward AI coding agents, and then take a real task and implement it step by step with the help of AI. We’ll use Cursor as a beginner-friendly IDE for AI-assisted engineering. My goal is to provide a very specific and reproducible example that you can use to kickstart your journey into building software better and faster with the help of AI.
@@ -57,6 +53,10 @@ Our task is to implement this abstract class to store information in MongoDB. It
 # 3. Development Flow
 Enough said. Let’s open Cursor and start working.
 
+> **TL;DR:**
+Treat the AI coding agent like a strong developer you manage, not like a magic “do the task” button. Start with a short technical investigation to understand the library and constraints, make the key technical decisions yourself, and then write a clear technical specification with examples and strict boundaries. Paste this spec to the agent in **Plan** mode, read the plan carefully, request fixes if something is wrong, and only then run **Build**. At the end, review the diff and accept changes only if the implementation matches the spec.
+
+
 ## 3.1. Environment Preparation
 For the sake of simplicity, we’ll assume we’re starting from a clean repository that contains only:
 
@@ -67,7 +67,7 @@ A real-world setup would include tests, a folder structure required for packagin
 
 <p align="center">
 	<img src="/assets/images/ai-assisted-swe-workshop/1.png"
-		alt="image"
+		alt="Cursor project scaffold: pyproject.toml with google-adk dependency and empty mongo_session_service.py file in the workspace"
 		width="600">
 </p>
 
@@ -82,7 +82,7 @@ We’ll take a link to the Google ADK documentation in [`/llms.txt`](https://llm
 
 <p align="center">
 	<img src="/assets/images/ai-assisted-swe-workshop/2.png"
-		alt="image"
+		alt="Cursor Settings → Indexing & Docs: adding documentation by pasting the ADK llms.txt URL and clicking Add Doc"
 		width="600">
 </p>
 
@@ -90,7 +90,7 @@ Then we specify the name that will be used to reference this documentation in co
 
 <p align="center">
 	<img src="/assets/images/ai-assisted-swe-workshop/3.png"
-		alt="image"
+		alt="Add new doc dialog in Cursor: set name google-adk, prefix URL, entrypoint llms.txt, then click Confirm"
 		width="600">
 </p>
 
@@ -102,7 +102,7 @@ Make sure that your dialog with the agent is in `Ask` mode:
 
 <p align="center">
 	<img src="/assets/images/ai-assisted-swe-workshop/4.png"
-		alt="image"
+		alt="Cursor chat mode selector: Ask mode selected for technical Q&A"
 		width="600">
 </p>
 
@@ -110,7 +110,7 @@ In response, you’ll get the overview we asked for:
 
 <p align="center">
 	<img src="/assets/images/ai-assisted-swe-workshop/5.png"
-		alt="image"
+		alt="Example response: explanation of Google ADK and the role of BaseSessionService (SessionService implementations)"
 		width="500">
 </p>
 
@@ -171,7 +171,7 @@ For storing user states, google-adk defines the class `StorageUserState` in `goo
 For storing events, google-adk defines the class `StorageEvent` in `google.adk.sessions.session.schemas.v1`. In this class, fields `id`, `app_name`, and `user_id` are marked as PK. So for this model, the `_id` of the Mongo document should be defined as `f'{id}_{app_name}_{user_id}'`.
 
 ### 1.3. Work with pymongo
-You should use pymongo as a DB driver. Use `AsyncMongoClient`, because all methods you need to override from `BaseSessionService` are async. Check pymondo docs to decide how to handle the client in the most effective way (e.g., whether you should create a new client for each query or instantiate it once in the constructor, etc.).
+You should use pymongo as a DB driver. Use `AsyncMongoClient`, because all methods you need to override from `BaseSessionService` are async. Check pymongo docs to decide how to handle the client in the most effective way (e.g., whether you should create a new client for each query or instantiate it once in the constructor, etc.).
 
 ## 2. "Business" rules
 Refer to google-adk docs and an existing implementation of `BaseSessionService` (e.g., `DatabaseSessionService`) to learn how all collections listed in section 1.1 are connected to each other, and when and how each of them should be saved / updated / deleted.
@@ -190,7 +190,7 @@ A few notes:
 - For this technical spec, I added the PyMongo client documentation (`@pymongo`) to Cursor and added this package to the project.
 - The first row (`@mongo_session_service.py`) of the spec is a reference to the file where the resulting class should be implemented.
 - It’s a good idea to provide examples as I did (see `#### Example 1` and `#### Example 2`).
-- If you’re not sure about some minor technical decisions (or you didn’t have time to investigate a specific aspect), you can directly instruct the agent to check the documentation and make a decision as recommended by the library vendor. Concrete example from this tech spec: `Check pymondo docs to decide how to handle the client in the most effective way (e.g., whether you should create a new client for each query or instantiate it once in the constructor, etc.)`
+- If you’re not sure about some minor technical decisions (or you didn’t have time to investigate a specific aspect), you can directly instruct the agent to check the documentation and make a decision as recommended by the library vendor. Concrete example from this tech spec: `Check pymongo docs to decide how to handle the client in the most effective way (e.g., whether you should create a new client for each query or instantiate it once in the constructor, etc.)`
 - The last row of the specification (`Do **not** create any unit or integration tests...`) is added for the sake of simplicity. But you may want to leave it as is and create a separate technical spec for testing infrastructure.
 
 ## 3.4. Building an Implementation Plan: Making Sure That the Agent Understood You Correctly
@@ -200,7 +200,7 @@ Now we need to provide the coding agent with this technical spec and make sure i
 
 <p align="center">
 	<img src="/assets/images/ai-assisted-swe-workshop/6.png"
-		alt="image"
+		alt="Cursor chat mode selector: Plan mode selected before pasting the technical spec to generate an implementation plan"
 		width="600">
 </p>
 
@@ -210,7 +210,7 @@ The resulting execution plan will look like this:
 
 <p align="center">
 	<img src="/assets/images/ai-assisted-swe-workshop/7.png"
-		alt="image"
+		alt="Cursor Plan output: MongoSessionService implementation plan open on the left, agent chat with requirements and generated plan on the right"
 		width="800">
 </p>
 
@@ -220,7 +220,7 @@ For example, in the plan that was generated for our task, we can easily spot an 
 
 <p align="center">
   <img src="/assets/images/ai-assisted-swe-workshop/8.png"
-    alt="image"
+    alt="Spotting a plan mistake: events collection _id rule does not include session_id (highlighted in the table)"
     width="600">
 </p>
 
@@ -228,7 +228,7 @@ Let’s ask the agent to fix this in the same chat where we requested the plan c
 
 <p align="center">
   <img src="/assets/images/ai-assisted-swe-workshop/9.png"
-    alt="image"
+    alt="Plan-mode message requesting a fix: include session_id in the events _id composition rule"
     width="600">
 </p>
 
@@ -236,7 +236,7 @@ The agent recognizes its mistake and fixes the plan accordingly:
 
 <p align="center">
   <img src="/assets/images/ai-assisted-swe-workshop/10.png"
-    alt="image"
+    alt="Agent acknowledges the issue and updates the plan: events _id rule now includes session_id, with a diff shown"
     width="850">
 </p>
 
@@ -247,7 +247,7 @@ At the end of the process, you will have all the code ready. You’ll need to re
 
 <p align="center">
   <img src="/assets/images/ai-assisted-swe-workshop/11.png"
-    alt="image"
+    alt="After Build: generated code in mongo_session_service.py and models.py, with “Keep All” highlighted to accept changes"
     width="900">
 </p>
 
