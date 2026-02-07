@@ -54,7 +54,7 @@ Our task is to implement this abstract class to store information in MongoDB. It
 Enough said. Let’s open Cursor and start working.
 
 > **TL;DR:**
-Treat the AI coding agent like a strong developer you manage, not like a magic “do the task” button. Start with a short technical investigation to understand the library and constraints, make the key technical decisions yourself, and then write a clear technical specification with examples and strict boundaries. Paste this spec to the agent in **Plan** mode, read the plan carefully, request fixes if something is wrong, and only then run **Build**. At the end, review the diff and accept changes only if the implementation matches the spec.
+> Treat the AI coding agent like a strong developer you manage, not like a magic “do the task” button. Start with a short technical investigation to understand the library and constraints, make the key technical decisions yourself, and then write a clear technical specification with examples and strict boundaries. Paste this spec to the agent in **Plan** mode, read the plan carefully, request fixes if something is wrong, and only then run **Build**. At the end, review the diff and accept changes only if the implementation matches the spec.
 
 
 ## 3.1. Environment Preparation
@@ -164,11 +164,8 @@ Instead, each document in a Mongo collection should have a deterministically con
 
 You should check pymongo to decide whether such a custom `_id` field should be included in the model class, or whether `_id` should be constructed dynamically for each query. In any case, the rule of `_id` composition for each collection should be deterministic and clearly defined.
 
-#### Example 1
+#### Example
 For storing user states, google-adk defines the class `StorageUserState` in `google.adk.sessions.session.schemas.v1`. In this class, fields `app_name` and `user_id` are marked as PK. So for this model, the `_id` of the Mongo document should be defined as `f'{app_name}_{user_id}'`.
-
-#### Example 2
-For storing events, google-adk defines the class `StorageEvent` in `google.adk.sessions.session.schemas.v1`. In this class, fields `id`, `app_name`, and `user_id` are marked as PK. So for this model, the `_id` of the Mongo document should be defined as `f'{id}_{app_name}_{user_id}'`.
 
 ### 1.3. Work with pymongo
 You should use pymongo as a DB driver. Use `AsyncMongoClient`, because all methods you need to override from `BaseSessionService` are async. Check pymongo docs to decide how to handle the client in the most effective way (e.g., whether you should create a new client for each query or instantiate it once in the constructor, etc.).
@@ -189,7 +186,7 @@ Refer to google-adk docs and an existing implementation of `BaseSessionService` 
 A few notes:
 - For this technical spec, I added the PyMongo client documentation (`@pymongo`) to Cursor and added this package to the project.
 - The first row (`@mongo_session_service.py`) of the spec is a reference to the file where the resulting class should be implemented.
-- It’s a good idea to provide examples as I did (see `#### Example 1` and `#### Example 2`).
+- It’s a good idea to provide examples as I did (see `#### Example`).
 - If you’re not sure about some minor technical decisions (or you didn’t have time to investigate a specific aspect), you can directly instruct the agent to check the documentation and make a decision as recommended by the library vendor. Concrete example from this tech spec: `Check pymongo docs to decide how to handle the client in the most effective way (e.g., whether you should create a new client for each query or instantiate it once in the constructor, etc.)`
 - The last row of the specification (`Do **not** create any unit or integration tests...`) is added for the sake of simplicity. But you may want to leave it as is and create a separate technical spec for testing infrastructure.
 
