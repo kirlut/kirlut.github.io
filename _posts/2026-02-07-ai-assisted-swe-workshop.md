@@ -11,7 +11,6 @@ header:
 tags:
 - AI‑Assisted Software Engineering
 ---
-# 0. Introduction
 
 So, you are a professional mid- to senior-level developer (if not, this post may not be for you). You know how to write good, effective code and get work done. You hear all the hype around “vibe coding”, all the success stories about LLMs in software development, and so on.
 
@@ -30,12 +29,12 @@ The goal of this post is to help you overcome this frustration and actually star
 First things first: an AI coding agent is not just a new tool like an IDE or a Git UI. It’s a tool that requires a change in how you think about your workflow. You can read a lot of near-philosophical takes about it on the web, but the practical essence is the following:
 
 > You are not the developer anymore. You’re the technical lead.  
-> The AI agent is the developer who will implement the task you’re responsible for.
+> The AI agent is the developer who will implement the task you’re responsible for, based on the technical specification you provide.
 
 This is it. This is the main thing you should keep in mind all the way down the road of working with an AI coding agent. A good tech lead will never simply ask a developer “do this task” when the task is big and implies important technical decisions.
 
 As a good technical lead, you’re responsible for:
-- In./l;vestigating all technical details related to your task (the AI will help with this too!)
+- Investigating all technical details related to your task (the AI will help with this too!)
 - Making all core technical decisions relevant to the implementation: what packages to use, which algorithm fits best, what concurrency scenarios should be taken into account, etc.
 - Writing a clear technical spec that provides all the necessary implementation details and requirements the developer needs to successfully implement the task the way you want it
 - Making sure the developer understood your requirements correctly
@@ -48,16 +47,50 @@ Now, let’s choose a real-world task and implement it with an AI coding agent!
 
 [Google ADK](https://google.github.io/adk-docs/) is a Python framework for developing AI agents. This framework provides the abstract class [`BaseSessionService`](https://github.com/google/adk-python/blob/main/src/google/adk/sessions/base_session_service.py). An implementation of this abstract class can be plugged into an agent written with this framework and is responsible for storing the state of an agent session.
 
-Out of the box, Google provides only two implementations of this class:
-- One for storing session state in a Google Cloud service (Vertex AI).
+Out of the box, Google provides only three implementations of this class:
+- An in-memory implementation for development purposes
+- An implementation for storing session state in a Google Cloud service (Vertex AI)
 - Another for storing information in SQL databases: [`DatabaseSessionService`](https://github.com/google/adk-python/blob/main/src/google/adk/sessions/database_session_service.py)
 
 Our task is to implement this abstract class to store information in MongoDB. It’s a decent task for a day or two of work for a senior developer. We’ll do it in a few hours - even if the developer isn’t familiar with Google ADK at all.
 
 # 3. Development Flow
-Enought said. Let's open Cursor and start working. 
-## 3.1. Technical Investigation. 
-As technical leads we should 
+Enough said. Let’s open Cursor and start working.
 
+## 3.1. Environment Preparation
+For the sake of simplicity, we’ll assume we’re starting from a clean repository that contains only:
 
+- A dependencies file needed for our code. I’m using `uv` - a Python project and environment management tool - so my dependencies file is `pyproject.toml`. In other languages/frameworks, it will be something different, for example, a `.csproj` in .NET.
+- An empty file for the class we aim to implement.
 
+A real-world setup would include tests, a folder structure required for packaging this class for distribution, etc. But I want to concentrate on our goal, so we’ll leave those things aside.
+
+![image](/assets/images/ai-assisted-swe-workshop/1.png)
+
+Our environment is ready, and the dependency on the Google ADK package (which we’re going to extend) is added.
+
+## 3.2. AI-Assisted Technical Investigation
+We have a third-party library to extend (Google ADK) and another implementation of the base class (`DatabaseSessionService`) developed by the library vendor. A good starting point is to ask AI a few questions to understand what this library is about and how the existing implementation of the `BaseSessionService` abstract class works.
+
+Cursor has an [amazing feature](https://cursor.com/docs/context/mentions#docs) that allows you to add documentation for any language/library from the web and then refer to that documentation in conversations with an agent.
+
+We’ll take a link to the Google ADK documentation in [`/llms.txt`](https://llmstxt.org/) format (it’s always better to use `llms.txt` when available) and add it to Cursor as suggested in Cursor’s documentation:
+
+![image](/assets/images/ai-assisted-swe-workshop/2.png)
+
+Then we specify the name that will be used to reference this documentation in conversations with agents and press `Confirm`:
+
+![image](/assets/images/ai-assisted-swe-workshop/3.png)
+
+Now we’re ready to dive into the internals of this library to better understand what needs to be done.
+
+Let’s open a dialog with the agent and ask our first question about Google ADK:
+`Briefly explain the purpose and capabilities of the @google-adk library, and explain the role of classes derived from BaseSessionService.`.  
+Make sure that your dialog with the agent is in `Ask` mode:
+
+![image](/assets/images/ai-assisted-swe-workshop/4.png)
+
+In response, you’ll get the overview we asked for:
+
+![image](/assets/images/ai-assisted-swe-workshop/5.png)
+ 
