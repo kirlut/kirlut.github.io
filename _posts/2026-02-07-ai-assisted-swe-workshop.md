@@ -65,7 +65,11 @@ For the sake of simplicity, we’ll assume we’re starting from a clean reposit
 
 A real-world setup would include tests, a folder structure required for packaging this class for distribution, etc. But I want to concentrate on our goal, so we’ll leave those things aside.
 
-![image](/assets/images/ai-assisted-swe-workshop/1.png)
+<p align="center">
+	<img src="/assets/images/ai-assisted-swe-workshop/1.png"
+		alt="image"
+		width="600">
+</p>
 
 Our environment is ready, and the dependency on the Google ADK package (which we’re going to extend) is added.
 
@@ -76,11 +80,19 @@ Cursor has an [amazing feature](https://cursor.com/docs/context/mentions#docs) t
 
 We’ll take a link to the Google ADK documentation in [`/llms.txt`](https://llmstxt.org/) format (it’s always better to use `llms.txt` when available) and add it to Cursor as suggested in Cursor’s documentation:
 
-![image](/assets/images/ai-assisted-swe-workshop/2.png)
+<p align="center">
+	<img src="/assets/images/ai-assisted-swe-workshop/2.png"
+		alt="image"
+		width="600">
+</p>
 
 Then we specify the name that will be used to reference this documentation in conversations with agents and press `Confirm`:
 
-![image](/assets/images/ai-assisted-swe-workshop/3.png)
+<p align="center">
+	<img src="/assets/images/ai-assisted-swe-workshop/3.png"
+		alt="image"
+		width="600">
+</p>
 
 Now we’re ready to dive into the internals of this library to better understand what needs to be done.
 
@@ -88,9 +100,29 @@ Let’s open a dialog with the agent and ask our first question about Google ADK
 `Briefly explain the purpose and capabilities of the @google-adk library, and explain the role of classes derived from BaseSessionService.`.  
 Make sure that your dialog with the agent is in `Ask` mode:
 
-![image](/assets/images/ai-assisted-swe-workshop/4.png)
+<p align="center">
+	<img src="/assets/images/ai-assisted-swe-workshop/4.png"
+		alt="image"
+		width="600">
+</p>
 
 In response, you’ll get the overview we asked for:
 
-![image](/assets/images/ai-assisted-swe-workshop/5.png)
- 
+<p align="center">
+	<img src="/assets/images/ai-assisted-swe-workshop/5.png"
+		alt="image"
+		width="500">
+</p>
+
+Now go ahead and ask any other questions you need in order to fully understand how this task should be implemented.
+
+> There are no “rules” for how you should conduct the technical investigation. This is one of the areas where you should apply your expertise and gather all the relevant information you need.
+
+These are the questions you may want to ask for this specific task, given that we’re using the existing `DatabaseSessionService` implementation as an example:
+- `Give me a high-level overview of how DatabaseSessionService is implemented`
+- `List all the tables where DatabaseSessionService stores session data for schema v1. For each table, list the primary keys (PKs), then explain how the tables are connected to each other (FKs?).`
+- `What concurrency considerations are taken into account in the @google-adk DatabaseSessionService implementation? Does it use any synchronization primitives when writing concurrently to the same tables from within the same process?`
+- etc
+
+The entire dialog with the agent can be found in [this markdown file](/assets/misc_files/ai-assisted-swe-workshop/tech_investigation_transcript.md).
+
