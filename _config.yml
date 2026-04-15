@@ -21,6 +21,9 @@ description: >- # this means to ignore newlines until "baseurl:"
   Personal technical blog at the intersection of AI and backend engineering 
 minimal_mistakes_skin: default
 search: true
+
+after_footer_scripts:
+  - /assets/js/copy-code.js
 og_image: /assets/images/bio-photo.jpeg
 
 # Build settings
@@ -59,7 +62,7 @@ plugins:
 author:
   name   : "Kirill Lutcenko"
   avatar : "/assets/images/bio-photo.jpeg"
-  bio    : "AI Engineer & Back-End Technical Lead. MSc AI.<br>10y building software, 2y in AI and tech-lead roles.<br>Engineering-first views on what works in AI (and what doesn’t)"
+  bio    : "AI Engineer, MSc AI.<br>10y building software, 2y in AI and tech-lead roles.<br>Engineering-first views on what works in AI (and what doesn’t)"
   links:
     - label: "LinkedIn"
       icon: "fa-brands fa-linkedin"
