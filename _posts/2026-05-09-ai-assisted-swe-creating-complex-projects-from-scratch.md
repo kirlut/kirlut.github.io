@@ -12,28 +12,28 @@ tags:
 - AI‑Assisted Software Engineering
 ---
 
-In my [previous article]({% post_url 2026-02-07-ai-assisted-swe-workshop %}) I've shown how to create single component with AI coding agents supporting Plan Mode. 
+In my [previous article]({% post_url 2026-02-07-ai-assisted-swe-workshop %}) I've shown how to create a single component with AI coding agents supporting Plan Mode. 
 
-Here we'll go further and will develop real multi-component application with non-trivial logic, db, frontend etc. 
+Here we'll go further and will develop a real multi-component application with non-trivial logic, db, frontend etc. 
 
-This time we'll use Claude Code, but I on purpose will use almost none of the Claude Code advanced features like skills, custom sub-agents and official or community plugings for the following reasons:
-- Coding agents harnesses (Cursor, Claude Code, Codex, Pi, etc) change all the time and will be very different next year, but core principles will stay the same. 
-- Ready to use third-party bundles (plugins) for complex development are complicated and don't give you full control over context and development flow. They are great instruments, but during early adoption of AI coding agents in your works it's better to have full control of the process. For the same reason why back in the day it was preferable to study software development in languages like C/C++, and only then start using heavy platforms like Java and .Net. 
+This time we'll use Claude Code, but I will on purpose use almost none of the Claude Code advanced features like skills, custom sub-agents and official or community plugins for the following reasons:
+- Coding agents' harnesses (Cursor, Claude Code, Codex, etc.) change all the time and will be very different next year, but the core principles will stay the same. 
+- Ready-to-use third-party bundles (plugins) for complex development are complicated and don't give you full control over context and development flow. They are great instruments, but during early adoption of AI coding agents in your work it's better to have full control of the process. For the same reason why back in the day it was preferable to study software development in languages like C/C++, and only then start using heavy platforms like Java and .NET. 
 
-The only exception from above principle is the usage of contex7 MCP server, that provides agent with up-to-date documentation on usage of 
+The only exception to the above principle is the usage of context7 MCP server, that provides the agent with up-to-date documentation on usage of libraries and instruments (Docker, databases, etc). 
 
-Application used as example in this article can be found [in this repository](https://github.com/kirlut/recipes-manager). This is a web application for creating recipies and calculating nutrition facts. The stack is: React SPA, Python backend, PostgreSQL, nginx, Docker. The exact logic and technological stack doesn't matter and I won't focus on this: it can be anything else. 
+The application used as an example in this article can be found [in this repository](https://github.com/kirlut/recipes-manager). This is a web application for creating recipes and calculating nutrition facts. The stack is: React SPA, Python backend, PostgreSQL, nginx, Docker. The exact logic and technology stack doesn't matter and I won't focus on this: it can be anything else. 
 
 # 1. Approach
-When developing complex applications there three main pillows on which the entire process will be based: 
+When developing complex applications there are four main pillars on which the entire process will be based: 
 1. Initial human-written specification describing two distinct things: 
 	- Required business logic and functionality
-	- Technical requirements, highligting core technical decisions made by human responsible for technical implementation of the app. It should not be deep in all directions: developer should clearly communicate aspects of technical implementation that is important for them and also state, what decisions agent should make independently.  
+	- Technical requirements, highlighting core technical decisions made by the human responsible for technical implementation of the app. It should not be deep in all directions: the developer should clearly communicate aspects of technical implementation that are important for them and also state what decisions the agent should make independently.  
 	
-	It may be one single textual document describing both this aspects or two different documents prepared by two different persons (e.g. Product Manager and Technical Leader)
-2. Multi-phase development flow. During initial planning AI coding agent is instructed to plan implementation of the entire system as series of separate phases. Each phase will be then implemented in separate session, so the entire context window will be dedicated to this phase only.
-3. TDD: AI coding agent is instructed to create tests (integrational and/or unit) that will serve as part of definition of done for each phase. Creation of tests is being done in a sessions separate from functionality implementation itself.
-4. Regular check if code drifts from plan. On every new session agent is instructed to double check if existing implementation plan is consistent with existing plan and change the code or plan itself, if it will not affect overall requirements.
+	It may be one single textual document describing both these aspects or two different documents prepared by two different persons (e.g. Product Manager and Technical Leader).
+2. Multi-phase development flow. During initial planning the AI coding agent is instructed to plan implementation of the entire system as a series of separate phases. Each phase will then be implemented in a separate session, so the entire context window will be dedicated to this phase only.
+3. TDD: The AI coding agent is instructed to create tests (integration and/or unit) that will serve as part of the definition of done for each phase. Creation of tests is done in a session separate from the functionality implementation itself.
+4. Regular check if the code drifts from the plan. On every new session, the agent is instructed to double-check if the existing implementation plan is consistent with the existing plan and change the code or plan itself if it does not affect the overall requirements.
 
 In the following sections we'll see all these principles in action. 
 
@@ -41,7 +41,7 @@ In the following sections we'll see all these principles in action.
 Enough said, let's start development. 
 
 ## 2.1. Step 1: Initial Planning {#step-1}
-So, you business and technical requirements are written. In my example, I've put them all in a single document [`system_spec.md` file](https://github.com/kirlut/recipes-manager/blob/main/.specs/system_spec.md?plain=1) that is the only thing I have in the repo for now: 
+So, your business and technical requirements are written. In my example, I've put them all in a single document [`system_spec.md` file](https://github.com/kirlut/recipes-manager/blob/main/.specs/system_spec.md?plain=1) that is the only thing I have in the repo for now: 
 
 <p align="center">
 	<img src="/assets/images/complex-projects-from-scratch/1.png"
@@ -49,20 +49,20 @@ So, you business and technical requirements are written. In my example, I've put
 </p>
 
 Our goal is to convert it to the following set of AI-generated documents: 
-- Detailed implementation plan splitted on sections
-- Test plan, containing describtions of tests required to verify each phase
-- Set of super detailed specifications files. The exact set of files will depend on the project. In my example they are: 
+- Detailed implementation plan split into sections
+- Test plan, containing descriptions of tests required to verify each phase
+- A set of super detailed specification files. The exact set of files will depend on the project. In my example they are: 
 	- REST API specification describing all the endpoints
 	- DB schema description
 
-Graphically this step may be depicted as follow: 
+Graphically this step may be depicted as follows: 
 
 <p align="center">
 	<img src="/assets/images/complex-projects-from-scratch/2.png"
 		width="350">
 </p>
 
-Planning prompt should provide specific description of what you want to get. The one I've used in this project can be seen [in github](https://github.com/kirlut/recipes-manager/blob/main/.prompts/2_specifications_creation__plan_mode.md?plain=1). Here I provide its' trimmed version: 
+The planning prompt should provide a specific description of what you want to get. The one I've used in this project can be seen [on GitHub](https://github.com/kirlut/recipes-manager/blob/main/.prompts/2_specifications_creation__plan_mode.md?plain=1). Here I provide its trimmed version: 
 {% highlight markdown linenos %}
 Read `.specs/system_spec.md` and `CLAUDE.md`.
 
@@ -95,37 +95,37 @@ ambiguity now than discover it mid-implementation.
 {% endhighlight %}
 
 {: .notice--info}
-📝 Specifically in Claude Code I recommend to create `CLAUDE.md` based on business and technical requirements. I've used [this promt](https://github.com/kirlut/recipes-manager/blob/main/.prompts/1_claude_md_creation__yolo_mode.md?plain=1) to do it. The `/init` command won't give you good result, because our repo is almost empty. 
+📝 Specifically in Claude Code I recommend to create `CLAUDE.md` based on business and technical requirements. I've used [this prompt](https://github.com/kirlut/recipes-manager/blob/main/.prompts/1_claude_md_creation__yolo_mode.md?plain=1) to do it. The `/init` command won't give you good result, because our repo is almost empty. 
 
-Now all we need to do is to open Claude Code, switch to `Plan` mode and paste this prompt. You will be asked follow-up questions and, once plan will be executed, you'll end up with all you need to start actual development: 
+Now all we need to do is to open Claude Code, switch to `Plan` mode and paste this prompt. You will be asked follow-up questions and, once the plan is executed, you'll end up with all you need to start actual development: 
 
 <p align="center">
 	<img src="/assets/images/complex-projects-from-scratch/3.png"
 		width="300">
 </p>
 
-This is what I've got: [github](https://github.com/kirlut/recipes-manager/tree/main/.specs/ai_gen).
+This is what I've got: [GitHub](https://github.com/kirlut/recipes-manager/tree/main/.specs/ai_gen).
 
 ### 2.1.1. Pro Tips for Initial Planning and Technical Requirements
-#### Use contex7
-[contex7](https://context7.com/) is a service providing MCP access to up-to-date documentation on almost every exesting libraries and instruments. I refer it in prompts regulary, for example: 
+#### Use context7
+[context7](https://context7.com/) is a service providing MCP access to up-to-date documentation on almost every existing library and tool. I refer to it in prompts regularly, for example: 
 {% highlight markdown linenos %}
 Use context7 MCP whenever you need current library docs (FastAPI, SQLAlchemy 
 async, pyjwt, Zalando guidelines, chosen frontend framework, pytest, etc).
 {% endhighlight %}
 
-#### Vary deps of technical requirements
-You almost never need technical requirements that are deep and detailed in every aspect. For example, in my [`system_spec.md` file](https://github.com/kirlut/recipes-manager/blob/main/.specs/system_spec.md?plain=1) I'm very detailed about code structure, core abstractions and architecture. But since I don't care much about frontend part, the only thing I've provided about it is: 
+#### Vary the depth of technical requirements
+You almost never need technical requirements that are deep and detailed in every aspect. For example, in my [`system_spec.md` file](https://github.com/kirlut/recipes-manager/blob/main/.specs/system_spec.md?plain=1) I'm very detailed about code structure, core abstractions and architecture. But since I don't care much about the frontend part, the only thing I've provided about it is: 
 {% highlight markdown linenos %}
 ## 4.1. Frontend App
 Choose the framework yourself. It should be something simple and reliable. Code should be organized according to best practices for this framework. 
 The web app should work and be automatically adjustable for both regular screens and mobile.
 {% endhighlight %}
 
-Essentially, I've just delegated frontend part to AI agent entirely.  
+Essentially, I've just delegated the frontend part to an AI agent entirely.  
 
 #### Use integration tests for containerizable components
-In cases when you don't really need unit-tests of super critical classes / functions, you may ask agent to make integration tests for containerizable components of the system. For example, this is the part of [initial planning prompt](https://github.com/kirlut/recipes-manager/blob/main/.prompts/2_specifications_creation__plan_mode.md?plain=1), where I describe this testing infrastructure: 
+In cases when you don't really need unit tests of super critical classes / functions, you may ask the agent to make integration tests for containerizable components of the system. For example, this is the part of [initial planning prompt](https://github.com/kirlut/recipes-manager/blob/main/.prompts/2_specifications_creation__plan_mode.md?plain=1), where I describe this testing infrastructure: 
 {% highlight markdown linenos %}
 4. `.specs/ai_gen/testing_strategy.md` — testing approach
    - For the sake of simplicity, only integration tests should be implemented, **not** unit tests of separate classes/functions.
@@ -141,18 +141,18 @@ In cases when you don't really need unit-tests of super critical classes / funct
 {% endhighlight %}
 
 #### Use the most advanced model with max reasoning
-Initial planning is the most reasoning-heavy part of the flow, so it's better to use the best available model during it. High-quality output of the planning will allow you to get good results with cheaper model during development. 
+Initial planning is the most reasoning-heavy part of the flow, so it's better to use the best available model during it. High-quality output of the planning will allow you to get good results with a cheaper model during development. 
 
 ## 2.2. Step 2: Read AI-generated Specifications!
-Ok, now is the most most exhausing part.  
+Ok, now is the most exhausting part.  
 
-You need to actually verify output generated on [Step 1](#step-1), and fix if needed. Of course you can easily skip it if this is your pet project, but if this is a comercial product I would recommend you to actually check it. It will save you time in the future. 
+You need to actually verify the output generated in [Step 1](#step-1), and fix if needed. Of course you can easily skip it if this is your pet project, but if this is a commercial product I would recommend you actually check it. It will save you time in the future. 
 
 ## 2.3. Step 3: Iterative Implementation of Tests and Code
-Now the easy part: implement software based on the implementation plan generated by agent. Each of two steps provided below should be repeated for each phase from the ai-generated [implementation plan](https://github.com/kirlut/recipes-manager/blob/main/.specs/ai_gen/implementation_plan.md?plain=1). Both of them should be done in `Plan` mode in separate sessions. 
+Now the easy part: implement software based on the implementation plan generated by the agent. Each of the two steps provided below should be repeated for each phase from the AI-generated [implementation plan](https://github.com/kirlut/recipes-manager/blob/main/.specs/ai_gen/implementation_plan.md?plain=1). Both of them should be done in `Plan` mode in separate sessions. 
 
 {: .notice--info}
-☝️ Note how prompts below instruct coding agent to check specification and (if shifts detected) to ask developer if specification should be fixed to make it consistent with the reality. This regular sanity check on each step of development helps to keep context consistent and reduce risk of confusing LLM with contradicted requirements. 
+☝️ Note how the prompts below instruct the coding agent to check the specification and (if shifts detected) to ask the developer if the specification should be fixed to make it consistent with reality. This regular sanity check on each step of development helps to keep the context consistent and reduce the risk of confusing the LLM with contradictory requirements. 
 
 ### 2.3.1. Prompt for Generating Tests for Phase N
 {% highlight markdown linenos %}
@@ -183,7 +183,7 @@ After implementation is complete:
 Our goal is to implement Phase {N} from `.specs/implementation_plan.md`. The integration tests for this phase already exist under `tests/` (created in a previous session) and must not be modified, skipped, or deleted. Passing all of these tests — and not regressing any tests from earlier phases — is an essential part of the definition of done for this phase. No additional tests (unit tests, extra integration tests, smoke tests, etc.) should be created.
 
 Before planning:
-   - Read `CLAUDE.md`, `.specs/system_spec.md`, `.specs/api_spec.md`, `.specs/db_schema.md`, `.specs/testing_strategy.md`, and `.specs/implementation_plan.md`.
+   - Read `CLAUDE.md`, `.specs/system_spec.md`, `.specs/ai_gen/api_spec.md`, `.specs/ai_gen/db_schema.md`, `.specs/ai_gen/testing_strategy.md`, and `.specs/ai_gen/implementation_plan.md`.
    - Locate and read the existing integration tests for Phase {N} under `tests/`.
    - Explore the current state of the repo, including any code from earlier phases this phase builds on.
 
@@ -208,6 +208,6 @@ After implementation is complete:
 {% endhighlight %}
 
 # 3. Conclusion
-This approach is a good starting point for creation your own AI-assisted development flow tailor-made for your needs. It doesn't guarantee bug-free software, but it succesfully mitigate drawbacks of LLMs, by constructing rich context, keeping it consistent and providing strict guardrails (specs and tests) to minimize halucinations.
+This approach is a good starting point for creating your own AI-assisted development flow tailor-made for your needs. It doesn't guarantee bug-free software, but it successfully mitigates many drawbacks of LLMs, by constructing rich context, keeping it consistent and providing strict guardrails (specs and tests) to minimize hallucinations.
 
-And of course, due to the deterministic nature of this workflow, it is easily automatable. But this is the topic for another text. 
+And of course, due to the deterministic nature of this workflow, it is automatable. But this is the topic for another text. 
