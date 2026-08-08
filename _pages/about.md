@@ -11,4 +11,4 @@ I don't write about hype cycles or "AI will replace everything" narratives. Most
 
 Background: MSc in Artificial Intelligence from the University of Leeds, plus a long backend track record in .NET and Python.
 
-[Download my CV](/assets/cv/Kirill_Lutcenko_CV.pdf)
+[CV](/assets/cv/Kirill_Lutcenko_CV.pdf)
