@@ -62,7 +62,7 @@ plugins:
 author:
   name   : "Kirill Lutcenko"
   avatar : "/assets/images/bio-photo.jpeg"
-  bio    : "AI Engineer, MSc AI.<br>10y building software, 2y in AI and tech-lead roles.<br>Engineering-first views on what works in AI (and what doesn’t)"
+  bio    : "AI Engineer, MSc AI.<br>Agentic systems, MCP tooling, and LLM integration, on top of 10+ years in backend engineering.<br>Engineering-first views on what works in AI and what doesn't."
   links:
     - label: "LinkedIn"
       icon: "fa-brands fa-linkedin"
@@ -95,6 +95,7 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
+      show_date: true
       comments: true
       share: true
       related: true

@@ -1,6 +1,8 @@
 source "https://rubygems.org"
 
-gem "github-pages", group: :jekyll_plugins
+# Pin to the version GitHub Pages currently builds with. Older releases pull in
+# Liquid 4.0.3, which calls the `tainted?` method Ruby 3.2 removed.
+gem "github-pages", "~> 232", group: :jekyll_plugins
 
 gem "tzinfo-data"
 gem "wdm", "~> 0.1.0" if Gem.win_platform?
